@@ -5,6 +5,11 @@ import random
 
 load_dotenv()
 
+token = os.getenv('TOKEN')
+if token == None:
+    print("No TOKEN found in env")
+    exit()
+
 client = discord.Client()
 
 quotes = [
@@ -79,4 +84,4 @@ async def on_message(message):
         print(quote)
         await message.channel.send(quote)
 
-client.run(os.getenv('TOKEN'))
+client.run(token)
