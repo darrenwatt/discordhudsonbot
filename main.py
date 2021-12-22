@@ -77,7 +77,7 @@ async def on_message(message):
         return
 
     if client.user.mentioned_in(message):
-        print(message)
+        logging.info(message)
         if "@everyone" in message.content:
             logging.info("This was a call to everyone which I'll quietly ignore ...")
         else: 
@@ -99,5 +99,17 @@ async def on_message(message):
         quote = random.choice(quotes)
         logging.info(quote)
         await message.channel.send(quote)
+
+    # admin commands
+
+    if message.content.startswith('^botservercount'):
+        await message.channel.send("I'm in " + str(len(client.guilds)) + " servers!")
+
+    if message.content.startswith('^botserverlist'):
+        mylist = []
+        for i in client.guilds:
+                    mylist.append(str(i))
+        await message.channel.send("I'm in these servers:" + str(mylist))
+
 
 client.run(token)
