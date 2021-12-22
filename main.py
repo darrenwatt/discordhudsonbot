@@ -1,13 +1,18 @@
+from typing import ContextManager
 import discord
 import os
 from dotenv import load_dotenv
 import random
+import logging
 
+# logging to stdout
+logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
+# token stuff
 token = os.getenv('TOKEN')
 if token == None:
-    print("No TOKEN found in env")
+    logging.critical("No TOKEN found in env")
     exit()
 
 client = discord.Client()
@@ -60,9 +65,11 @@ quotes = [
 
 ]
 
+abouttext = "I am Private First Class William L. Hudson. I respond to the words \"Alien\" or \"Aliens\"."
+
 @client.event
 async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
+    logging.info('We have logged in as {0.user}'.format(client))
 
 @client.event
 async def on_message(message):
@@ -70,18 +77,27 @@ async def on_message(message):
         return
 
     if client.user.mentioned_in(message):
-        text = "I am Hudson, I respond to the words Alien or Aliens"
-        print(text)
-        await message.channel.send(text)
+        print(message)
+        if "@everyone" in message.content:
+            logging.info("This was a call to everyone which I'll quietly ignore ...")
+        else: 
+            logging.info(abouttext)
+            await message.channel.send(abouttext)
 
     if "hicks" in message.content.lower():
         quote = "Hudson, Sir. He's Hicks."
-        print(quote)
+        logging.info(quote)
         await message.channel.send(quote)
+
+    if "hudson" in message.content.lower():
+        if message.author == client.user:
+            return
+        logging.info(abouttext)
+        await message.channel.send(abouttext)
 
     if "alien" in message.content.lower():
         quote = random.choice(quotes)
-        print(quote)
+        logging.info(quote)
         await message.channel.send(quote)
 
 client.run(token)
