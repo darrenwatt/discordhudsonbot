@@ -43,7 +43,7 @@ quotes = [
     "Look, man, let's just bug out and call it even, okay?",
     "Maybe you haven't been keeping up on current events, but we just got out asses kicked, pal!",
     "Well that's great! That's just fucking great, man. Now what the fuck are we supposed to do, man? We're in some real pretty shit now!",
-    "Just tell me what the fuck we're supposed to do now. What're we gonna do now?",
+    "That's it, man. Game over, man. Game over! What the fuck are we gonna do now? What are we gonna do?",
     "Man, we're not going to make it seventeen hours! Those things are going to come in here, just like they did before, man... they're going to come in here and get us, man, long before...",
     "Aye-firmative. I'm on it.",
     "Yeah, right, it runs from the processing station right into the sublevel here.",
