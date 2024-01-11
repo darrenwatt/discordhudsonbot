@@ -21,6 +21,7 @@ client = discord.Client()
 quotes = [
     "This floor's freezing.",
     "Whoooah! No shit? I'm impressed.",
+    "Hey Vasquez, have you ever been mistaken for a man?"
     "Is this going to be a stand-up fight, Sir, or another bug-hunt?",
     "Somebody said alien... she thought they said illegal alien and signed up.",
     "Anytime. Anywhere.",
