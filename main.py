@@ -82,7 +82,9 @@ async def on_message(message):
         logging.info(message)
         if "@everyone" in message.content:
             logging.info("This was a call to everyone which I'll quietly ignore ...")
-        else: 
+        elif "@here" in message.content:
+            logging.info("this was a call to here which I'll quietly ignore ...")
+        else:
             logging.info(abouttext)
             await message.channel.send(abouttext)
 
@@ -104,10 +106,10 @@ async def on_message(message):
 
     # admin commands
 
-    if message.content.startswith('^botservercount'):
+    if message.content.startswith('^hudsonservercount'):
         await message.channel.send("I'm in " + str(len(client.guilds)) + " servers!")
 
-    if message.content.startswith('^botserverlist'):
+    if message.content.startswith('^hudsonserverlist'):
         mylist = []
         for i in client.guilds:
                     mylist.append(str(i))
