@@ -16,7 +16,6 @@ if token == None:
     exit()
 
 client = discord.Client()
-#client = discord.Client(intents=discord.Intents.default())
 
 quotes = [
     "This floor's freezing.",
