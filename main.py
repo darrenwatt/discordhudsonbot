@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 import random
 import logging
+from prometheus_client import start_http_server, Counter
 
 # logging to stdout
 logging.basicConfig(level=logging.INFO)
@@ -15,6 +16,17 @@ token = os.getenv('TOKEN')
 if token == None:
     logging.critical("No TOKEN found in env")
     exit()
+
+# Prometheus metrics
+MESSAGES_SENT = Counter('hudson_bot_messages_sent_total', 'Total messages sent by the bot', ['trigger'])
+
+# Start Prometheus metrics server
+metrics_port = int(os.getenv('METRICS_PORT', os.getenv('PORT', '8000')))
+try:
+    start_http_server(metrics_port)
+    logging.info(f"Started Prometheus metrics server on port {metrics_port}")
+except Exception as e:
+    logging.error(f"Failed to start Prometheus metrics server: {e}")
 
 class HudsonBot(discord.Client):
     def __init__(self):
@@ -95,30 +107,36 @@ async def on_message(message):
         else: 
             logging.info(abouttext)
             await message.channel.send(abouttext)
+            MESSAGES_SENT.labels(trigger='mention').inc()
 
     if "hicks" in message.content.lower():
         quote = "Hudson, Sir. He's Hicks."
         logging.info(quote)
         await message.channel.send(quote)
+        MESSAGES_SENT.labels(trigger='hicks').inc()
 
     if "hudson" in message.content.lower():
         if message.author == client.user:
             return
         logging.info(abouttext)
         await message.channel.send(abouttext)
+        MESSAGES_SENT.labels(trigger='hudson').inc()
 
     if "alien" in message.content.lower():
         quote = random.choice(quotes)
         logging.info(quote)
         await message.channel.send(quote)
+        MESSAGES_SENT.labels(trigger='alien').inc()
 
 @client.tree.command(name="hudsonservercount", description="Show how many servers the bot is in.")
 async def hudsonservercount(interaction: discord.Interaction):
     await interaction.response.send_message(f"I'm in {len(client.guilds)} servers!")
+    MESSAGES_SENT.labels(trigger='hudsonservercount').inc()
 
 @client.tree.command(name="hudsonserverlist", description="List the servers the bot is in.")
 async def hudsonserverlist(interaction: discord.Interaction):
     mylist = [str(g) for g in client.guilds]
     await interaction.response.send_message(f"I'm in these servers: {mylist}")
+    MESSAGES_SENT.labels(trigger='hudsonserverlist').inc()
 
 client.run(token)
