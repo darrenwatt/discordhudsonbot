@@ -1,5 +1,6 @@
 from typing import ContextManager
 import discord
+from discord import app_commands
 import os
 from dotenv import load_dotenv
 import random
@@ -15,7 +16,17 @@ if token == None:
     logging.critical("No TOKEN found in env")
     exit()
 
-client = discord.Client()
+class HudsonBot(discord.Client):
+    def __init__(self):
+        intents = discord.Intents.default()
+        intents.message_content = True
+        super().__init__(intents=intents)
+        self.tree = app_commands.CommandTree(self)
+
+    async def setup_hook(self):
+        await self.tree.sync()
+
+client = HudsonBot()
 
 quotes = [
     "This floor's freezing.",
@@ -101,16 +112,13 @@ async def on_message(message):
         logging.info(quote)
         await message.channel.send(quote)
 
-    # admin commands
+@client.tree.command(name="hudsonservercount", description="Show how many servers the bot is in.")
+async def hudsonservercount(interaction: discord.Interaction):
+    await interaction.response.send_message(f"I'm in {len(client.guilds)} servers!")
 
-    if message.content.startswith('^botservercount'):
-        await message.channel.send("I'm in " + str(len(client.guilds)) + " servers!")
-
-    if message.content.startswith('^botserverlist'):
-        mylist = []
-        for i in client.guilds:
-                    mylist.append(str(i))
-        await message.channel.send("I'm in these servers:" + str(mylist))
-
+@client.tree.command(name="hudsonserverlist", description="List the servers the bot is in.")
+async def hudsonserverlist(interaction: discord.Interaction):
+    mylist = [str(g) for g in client.guilds]
+    await interaction.response.send_message(f"I'm in these servers: {mylist}")
 
 client.run(token)
