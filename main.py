@@ -5,7 +5,8 @@ import os
 from dotenv import load_dotenv
 import random
 import logging
-from prometheus_client import start_http_server, Counter
+import time
+from prometheus_client import start_http_server, Counter, Histogram
 
 # logging to stdout
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +20,7 @@ if token == None:
 
 # Prometheus metrics
 MESSAGES_SENT = Counter('hudson_bot_messages_sent_total', 'Total messages sent by the bot', ['trigger'])
+RESPONSE_TIME = Histogram('hudson_bot_response_time_seconds', 'Response time in seconds to process and answer a trigger', ['trigger'])
 
 # Start Prometheus metrics server
 metrics_port = int(os.getenv('METRICS_PORT', os.getenv('PORT', '8000')))
@@ -105,38 +107,50 @@ async def on_message(message):
         if "@everyone" in message.content:
             logging.info("This was a call to everyone which I'll quietly ignore ...")
         else: 
+            start_time = time.perf_counter()
             logging.info(abouttext)
             await message.channel.send(abouttext)
             MESSAGES_SENT.labels(trigger='mention').inc()
+            RESPONSE_TIME.labels(trigger='mention').observe(time.perf_counter() - start_time)
 
     if "hicks" in message.content.lower():
+        start_time = time.perf_counter()
         quote = "Hudson, Sir. He's Hicks."
         logging.info(quote)
         await message.channel.send(quote)
         MESSAGES_SENT.labels(trigger='hicks').inc()
+        RESPONSE_TIME.labels(trigger='hicks').observe(time.perf_counter() - start_time)
 
     if "hudson" in message.content.lower():
         if message.author == client.user:
             return
+        start_time = time.perf_counter()
         logging.info(abouttext)
         await message.channel.send(abouttext)
         MESSAGES_SENT.labels(trigger='hudson').inc()
+        RESPONSE_TIME.labels(trigger='hudson').observe(time.perf_counter() - start_time)
 
     if "alien" in message.content.lower():
+        start_time = time.perf_counter()
         quote = random.choice(quotes)
         logging.info(quote)
         await message.channel.send(quote)
         MESSAGES_SENT.labels(trigger='alien').inc()
+        RESPONSE_TIME.labels(trigger='alien').observe(time.perf_counter() - start_time)
 
 @client.tree.command(name="hudsonservercount", description="Show how many servers the bot is in.")
 async def hudsonservercount(interaction: discord.Interaction):
+    start_time = time.perf_counter()
     await interaction.response.send_message(f"I'm in {len(client.guilds)} servers!")
     MESSAGES_SENT.labels(trigger='hudsonservercount').inc()
+    RESPONSE_TIME.labels(trigger='hudsonservercount').observe(time.perf_counter() - start_time)
 
 @client.tree.command(name="hudsonserverlist", description="List the servers the bot is in.")
 async def hudsonserverlist(interaction: discord.Interaction):
+    start_time = time.perf_counter()
     mylist = [str(g) for g in client.guilds]
     await interaction.response.send_message(f"I'm in these servers: {mylist}")
     MESSAGES_SENT.labels(trigger='hudsonserverlist').inc()
+    RESPONSE_TIME.labels(trigger='hudsonserverlist').observe(time.perf_counter() - start_time)
 
 client.run(token)
