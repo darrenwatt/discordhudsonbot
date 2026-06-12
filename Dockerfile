@@ -1,8 +1,7 @@
-FROM python:3.8-alpine
+FROM python:3.12-alpine
 
 COPY requirements.txt /
 COPY main.py /
-COPY .env /
 
 RUN pip install -r requirements.txt
 
